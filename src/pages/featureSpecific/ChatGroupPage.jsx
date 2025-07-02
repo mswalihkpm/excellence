@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const publicGroupNames = ["SAMAJAM", "COMPASS", "EXCELLENTIA", "CLEANY ISHA'ATH", "MULTHAQA"];
+const publicGroupNames = ["സമാജം", "COMPASS", "EXCELLENTIA", "CLEANY ISHA'ATH", "MULTHAQA", "ആഴ്ചക്കൂട്ടം"];
 
 const ChatGroupPage = ({ user }) => {
   const { toast } = useToast();
