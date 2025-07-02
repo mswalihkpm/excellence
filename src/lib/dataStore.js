@@ -25,6 +25,7 @@ export const studentDetailFields = [
   { id: 'fatherName', label: 'Father\'s Name', type: 'text' },
   { id: 'phone', label: 'Phone Number', type: 'tel' },
   { id: 'email', label: 'Email Address', type: 'email' },
+  { id: 'photo', label: 'Student Photo', type: 'png' },
 ];
 
 export const initialStudentData = () => {
