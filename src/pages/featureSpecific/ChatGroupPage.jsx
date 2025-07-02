@@ -1,16 +1,33 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Card, CardContent, CardHeader, CardTitle, CardDescription,
-  Button, Input, ScrollArea, Dialog, DialogContent,
-  DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
-  Checkbox, Label, Popover, PopoverContent, PopoverTrigger
-} from '@/components/ui';
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from "@/components/ui/popover";
 import { useToast } from '@/components/ui/use-toast';
 import { saveData, loadData } from '@/lib/dataStore';
 import { studentNames } from '@/lib/students';
 import {
-  PlusCircle, Send, Paperclip, Mic, Users, MessageSquare,
-  Video, Smile, FileText, Trash2
+  PlusCircle,
+  Send,
+  Paperclip,
+  Mic,
+  Users,
+  MessageSquare,
+  Video,
+  Smile,
+  FileText,
+  Trash2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -19,25 +36,18 @@ const reactionEmojis = ['👍', '❤️', '😂', '😢', '😮', '😡'];
 
 const ChatGroupPage = ({ user }) => {
   const { toast } = useToast();
+  const [groups, setGroups] = useState(loadData('chatGroups',
+    publicGroupNames.map(name => ({
+      id: name.toLowerCase().replace(/\s+/g, '-'),
+      name,
+      members: ['all'],
+      messages: [],
+      isPublic: true
+    }))
+  ));
 
-  const [groups, setGroups] = useState(
-    loadData('chatGroups',
-      publicGroupNames.map(name => ({
-        id: name.toLowerCase().replace(/\s+/g, '-'),
-        name,
-        members: ['all'],
-        messages: [],
-        isPublic: true
-      }))
-    )
-  );
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [newMessage, setNewMessage] = useState('');
-  const [newGroupName, setNewGroupName] = useState('');
-  const [selectedMembers, setSelectedMembers] = useState([]);
-  const [showCreateGroupDialog, setShowCreateGroupDialog] = useState(false);
-  const [groupSearchTerm, setGroupSearchTerm] = useState('');
-  const [studentSearchTerm, setStudentSearchTerm] = useState('');
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -48,179 +58,152 @@ const ChatGroupPage = ({ user }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [selectedGroup?.messages]);
 
-  const handleCreateGroup = () => {
-    if (!newGroupName.trim() || selectedMembers.length === 0) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Group name and at least one member are required."
-      });
-      return;
-    }
-    const newGroup = {
-      id: Date.now().toString(),
-      name: newGroupName.trim(),
-      members: [...selectedMembers, user.name],
-      messages: [],
-      isPublic: false,
-      createdBy: user.name,
-    };
-    setGroups(prev => [...prev, newGroup]);
-    toast({ title: "Group Created", description: `Group "${newGroup.name}" created.` });
-    setNewGroupName('');
-    setSelectedMembers([]);
-    setShowCreateGroupDialog(false);
-  };
-
-  const handleMemberSelect = (name) => {
-    setSelectedMembers(prev =>
-      prev.includes(name) ? prev.filter(m => m !== name) : [...prev, name]
-    );
-  };
-
   const handleSendMessage = (type = 'text', content = newMessage) => {
-    if (!selectedGroup) return;
+    if (!selectedGroup || !content.trim()) return;
 
-    let message = {
+    const message = {
       id: Date.now().toString(),
       sender: user.name,
-      timestamp: new Date().toISOString(),
       type,
+      text: type === 'text' ? content.trim() : '',
+      content: type !== 'text' ? content : '',
+      timestamp: new Date().toISOString(),
       reactions: {}
     };
 
-    if (type === 'text') {
-      if (!content.trim()) return;
-      message.text = content.trim();
-      setNewMessage('');
-    } else {
-      message.file = content; // will be a base64 string or URL
-    }
+    setGroups(prev =>
+      prev.map(group =>
+        group.id === selectedGroup.id
+          ? { ...group, messages: [...group.messages, message] }
+          : group
+      )
+    );
 
-    setGroups(prev => prev.map(group =>
-      group.id === selectedGroup.id ? {
-        ...group,
-        messages: [...group.messages, message]
-      } : group
-    ));
+    if (type === 'text') setNewMessage('');
+    toast({
+      title: `Sent ${type}`,
+      description: `${type} message sent`,
+      className: "bg-blue-500 text-white"
+    });
   };
 
-  const handleFileUpload = async (event, fileType) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      handleSendMessage(fileType, reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleDeleteMessage = (messageId) => {
+  const handleDeleteMessage = (id) => {
     if (!selectedGroup) return;
-    setGroups(prev => prev.map(group =>
-      group.id === selectedGroup.id
-        ? { ...group, messages: group.messages.filter(m => m.id !== messageId) }
-        : group
-    ));
+    setGroups(prev =>
+      prev.map(group =>
+        group.id === selectedGroup.id
+          ? { ...group, messages: group.messages.filter(m => m.id !== id) }
+          : group
+      )
+    );
   };
 
-  const handleReaction = (messageId, emoji) => {
+  const handleReaction = (id, emoji) => {
     if (!selectedGroup) return;
-    setGroups(prev => prev.map(group => {
-      if (group.id === selectedGroup.id) {
-        return {
-          ...group,
-          messages: group.messages.map(msg => {
-            if (msg.id === messageId) {
-              const newReactions = { ...msg.reactions };
-              if (newReactions[emoji]?.includes(user.name)) {
-                newReactions[emoji] = newReactions[emoji].filter(n => n !== user.name);
-                if (newReactions[emoji].length === 0) delete newReactions[emoji];
-              } else {
-                newReactions[emoji] = [...(newReactions[emoji] || []), user.name];
-              }
-              return { ...msg, reactions: newReactions };
+    setGroups(prev =>
+      prev.map(group =>
+        group.id === selectedGroup.id
+          ? {
+              ...group,
+              messages: group.messages.map(msg => {
+                if (msg.id === id) {
+                  const reactions = { ...msg.reactions };
+                  if (reactions[emoji]?.includes(user.name)) {
+                    reactions[emoji] = reactions[emoji].filter(n => n !== user.name);
+                    if (reactions[emoji].length === 0) delete reactions[emoji];
+                  } else {
+                    reactions[emoji] = [...(reactions[emoji] || []), user.name];
+                  }
+                  return { ...msg, reactions };
+                }
+                return msg;
+              })
             }
-            return msg;
-          })
-        };
-      }
-      return group;
-    }));
+          : group
+      )
+    );
   };
-
-  const filteredStudentNames = studentNames.filter(name =>
-    name.toLowerCase().includes(studentSearchTerm.toLowerCase()));
-  const userGroups = groups.filter(group =>
-    (group.isPublic || group.members.includes(user.name)) &&
-    group.name.toLowerCase().includes(groupSearchTerm.toLowerCase()));
 
   return (
     <motion.div className="flex h-full">
-      {/* Sidebar */}
-      {/* Your sidebar code remains unchanged ... */}
+      <aside className="w-1/4 p-3 border-r border-border">
+        <h2 className="font-bold mb-2">Groups</h2>
+        <ScrollArea className="h-full">
+          {groups.map(group => (
+            <Button
+              key={group.id}
+              variant={selectedGroup?.id === group.id ? "secondary" : "ghost"}
+              className="w-full justify-start mb-1"
+              onClick={() => setSelectedGroup(group)}
+            >
+              {group.name}
+            </Button>
+          ))}
+        </ScrollArea>
+      </aside>
 
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col p-3">
         {selectedGroup ? (
           <>
-            <ScrollArea className="flex-grow p-3">
+            <ScrollArea className="flex-grow mb-3">
               {selectedGroup.messages.map(msg => (
-                <div key={msg.id} className="mb-2">
-                  <p><strong>{msg.sender}:</strong></p>
-                  {msg.type === 'text' && <p>{msg.text}</p>}
-                  {msg.type === 'image' && <img src={msg.file} alt="sent img" className="w-40 rounded" />}
-                  {msg.type === 'video' && (
-                    <video controls src={msg.file} className="w-60 rounded" />
-                  )}
-                  {msg.type === 'voice' && (
-                    <audio controls src={msg.file} />
-                  )}
-                  {msg.type === 'file' && (
-                    <a href={msg.file} download>Download file</a>
-                  )}
-                  <div>
-                    {reactionEmojis.map(e => (
-                      <button key={e} onClick={() => handleReaction(msg.id, e)}>
-                        {e}
-                      </button>
-                    ))}
-                    <button onClick={() => handleDeleteMessage(msg.id)}>Delete</button>
+                <motion.div
+                  key={msg.id}
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-3"
+                >
+                  <div className="p-2 rounded-md shadow bg-purple-600 text-white">
+                    <p className="text-xs">{msg.sender}</p>
+
+                    {msg.type === 'text' && <p>{msg.text}</p>}
+                    {msg.type === 'image' && (
+                      <img src={msg.content} alt="sent" className="max-w-xs" />
+                    )}
+                    {msg.type === 'video' && (
+                      <video controls src={msg.content} className="max-w-xs" />
+                    )}
+                    {msg.type === 'voice' && (
+                      <audio controls src={msg.content}></audio>
+                    )}
+                    {msg.type === 'file' && (
+                      <a href={msg.content} download className="underline">Download File</a>
+                    )}
+
+                    <div className="text-[10px]">{new Date(msg.timestamp).toLocaleTimeString()}</div>
                   </div>
-                </div>
+                </motion.div>
               ))}
-              <div ref={messagesEndRef} />
+              <div ref={messagesEndRef}></div>
             </ScrollArea>
 
-            <div className="p-2 border-t flex space-x-2">
+            <div className="flex items-center gap-2 border-t pt-2">
+              <Button onClick={() => handleSendMessage('image', '/path/to/sample.jpg')}>
+                <Paperclip />
+              </Button>
+              <Button onClick={() => handleSendMessage('video', '/path/to/video.mp4')}>
+                <Video />
+              </Button>
+              <Button onClick={() => handleSendMessage('voice', '/path/to/voice.mp3')}>
+                <Mic />
+              </Button>
+              <Button onClick={() => handleSendMessage('file', '/path/to/file.pdf')}>
+                <FileText />
+              </Button>
+
               <Input
                 value={newMessage}
                 onChange={e => setNewMessage(e.target.value)}
                 placeholder="Type a message..."
-                onKeyPress={e => e.key === 'Enter' && handleSendMessage()}
+                onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
               />
-              <Button onClick={() => handleSendMessage()}>Send</Button>
-
-              <label>
-                <Paperclip />
-                <input type="file" accept="image/*" hidden onChange={e => handleFileUpload(e, 'image')} />
-              </label>
-              <label>
-                <Video />
-                <input type="file" accept="video/*" hidden onChange={e => handleFileUpload(e, 'video')} />
-              </label>
-              <label>
-                <Mic />
-                <input type="file" accept="audio/*" hidden onChange={e => handleFileUpload(e, 'voice')} />
-              </label>
-              <label>
-                <FileText />
-                <input type="file" hidden onChange={e => handleFileUpload(e, 'file')} />
-              </label>
+              <Button onClick={() => handleSendMessage()}>
+                <Send />
+              </Button>
             </div>
           </>
         ) : (
-          <div>Select a group to chat</div>
+          <p>Select a group to start chatting</p>
         )}
       </main>
     </motion.div>
