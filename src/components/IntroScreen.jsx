@@ -10,19 +10,33 @@ const IntroScreen = () => {
     visible: {
       opacity: 1,
       transition: {
-        duration: 0.5,
-        staggerChildren: 0.3,
+        duration: 0.3,          // faster fade in
+        staggerChildren: 0.05,  // tighter stagger
       },
     },
     exit: {
       opacity: 0,
       scale: 0.8,
-      transition: { duration: 0.7, ease: "anticipate" }
+      transition: { duration: 0.5, ease: "anticipate" }
     }
   };
 
   const nameVariants = {
-    hidden: { y: -50, opacity: 0 },
+    hidden: { y: -30, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 120,
+        damping: 12,
+        duration: 0.4,
+      },
+    },
+  };
+
+  const captionVariants = {
+    hidden: { y: 30, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
@@ -30,21 +44,7 @@ const IntroScreen = () => {
         type: "spring",
         stiffness: 100,
         damping: 10,
-        duration: 0.8,
-      },
-    },
-  };
-
-  const captionVariants = {
-    hidden: { y: 50, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 80,
-        damping: 12,
-        duration: 0.8,
+        duration: 0.4,
       },
     },
   };
@@ -67,9 +67,9 @@ const IntroScreen = () => {
         {appName.split("").map((char, index) => (
           <motion.span
             key={index}
-            initial={{ opacity: 0, scale:0.5, rotate: Math.random() * 90 - 45 }}
-            animate={{ opacity: 1, scale:1, rotate: 0 }}
-            transition={{ delay: 0.5 + index * 0.1, type:"spring", stiffness:300, damping:15 }}
+            initial={{ opacity: 0, scale: 0.5, rotate: Math.random() * 90 - 45 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ delay: 0.2 + index * 0.05, type: "spring", stiffness: 300, damping: 15 }}
           >
             {char}
           </motion.span>
@@ -84,9 +84,9 @@ const IntroScreen = () => {
       </motion.p>
       <motion.div 
         className="absolute bottom-10 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-primary rounded-full"
-        initial={{width:0}}
-        animate={{width: "8rem"}}
-        transition={{duration:2.8, ease:"linear"}}
+        initial={{ width: 0 }}
+        animate={{ width: "8rem" }}
+        transition={{ duration: 1.5, ease: "linear" }}
       />
     </motion.div>
   );
