@@ -13,10 +13,8 @@ import { useToast } from '@/components/ui/use-toast';
 import { saveData, loadData } from '@/lib/dataStore';
 import {
   Paperclip,
-  Mic,
-  Video,
-  FileText,
-  Send
+  Send,
+  Trash2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -93,8 +91,27 @@ const ChatGroupPage = ({ user }) => {
       handleSendMessage('file', fileUrl);
     }
 
-    // Reset file input
     e.target.value = null;
+  };
+
+  const handleDeleteMessage = (messageId) => {
+    if (!selectedGroup) return;
+
+    setGroups(prev =>
+      prev.map(group =>
+        group.id === selectedGroup.id
+          ? {
+              ...group,
+              messages: group.messages.filter(msg => msg.id !== messageId)
+            }
+          : group
+      )
+    );
+
+    toast({
+      title: "Message deleted",
+      className: "bg-red-500 text-white"
+    });
   };
 
   return (
@@ -126,8 +143,8 @@ const ChatGroupPage = ({ user }) => {
                   animate={{ opacity: 1, y: 0 }}
                   className="mb-3"
                 >
-                  <div className="p-2 rounded-md shadow bg-purple-600 text-white max-w-lg">
-                    <p className="text-xs mb-1">{msg.sender}</p>
+                  <div className="relative p-2 rounded-md shadow bg-purple-600 text-white max-w-lg">
+                    <p className="text-xs mb-1 font-bold">{msg.sender}</p>
 
                     {msg.type === 'text' && <p>{msg.text}</p>}
                     {msg.type === 'image' && (
@@ -143,7 +160,17 @@ const ChatGroupPage = ({ user }) => {
                       <a href={msg.content} download className="underline">Download File</a>
                     )}
 
-                    <div className="text-[10px] mt-1">{new Date(msg.timestamp).toLocaleTimeString()}</div>
+                    <div className="flex justify-between items-center text-[10px] mt-1">
+                      <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="ml-2 p-1 text-white"
+                        onClick={() => handleDeleteMessage(msg.id)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
                   </div>
                 </motion.div>
               ))}
