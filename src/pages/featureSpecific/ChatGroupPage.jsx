@@ -162,14 +162,16 @@ const ChatGroupPage = ({ user }) => {
 
                     <div className="flex justify-between items-center text-[10px] mt-1">
                       <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="ml-2 p-1 text-white"
-                        onClick={() => handleDeleteMessage(msg.id)}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
+                      {msg.sender === user.name && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="ml-2 p-1 text-white"
+                          onClick={() => handleDeleteMessage(msg.id)}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </motion.div>
