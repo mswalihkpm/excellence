@@ -98,7 +98,7 @@ const SettingsMenu = ({ onLogout, toggleTheme, currentTheme, onShowChangePasswor
             </div>
             <div className="flex items-center space-x-3">
               <Phone className="h-5 w-5 text-primary shrink-0" />
-              <span className="text-foreground">4834355216</span>
+              <span className="text-foreground">04834355216</span>
             </div>
             <div className="flex items-center space-x-3">
               <Facebook className="h-5 w-5 text-primary shrink-0" />
@@ -116,18 +116,6 @@ const SettingsMenu = ({ onLogout, toggleTheme, currentTheme, onShowChangePasswor
               <Instagram className="h-5 w-5 text-primary shrink-0" />
               <a href="https://instagram.com/msoexcellence/?hl=en" target="_blank" rel="noopener noreferrer" className="text-foreground hover:underline hover:text-primary break-all">
                 instagram.com/msoexcellence
-              </a>
-            </div>
-            <div className="flex items-center space-x-3">
-              <WhatsappIcon className="h-5 w-5 text-primary shrink-0" />
-              <a href="https://wa.me/918086282205" target="_blank" rel="noopener noreferrer" className="text-foreground hover:underline hover:text-primary break-all">
-                +91 8086282205 (WhatsApp)
-              </a>
-            </div>
-             <div className="flex items-center space-x-3">
-              <BookOpen className="h-5 w-5 text-primary shrink-0" />
-              <a href="https://alishaa.live" target="_blank" rel="noopener noreferrer" className="text-foreground hover:underline hover:text-primary break-all">
-                Magazine: alishaa.live
               </a>
             </div>
           </div>
