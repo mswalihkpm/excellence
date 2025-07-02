@@ -33,15 +33,15 @@ export const masterNames = [
 ];
 
 export const mhsUserNamesAndRoles = [
-  { name: "MHS President Example", role: "president" },
-  { name: "MHS Secretary Example", role: "secretary" },
-  { name: "Accounter Example", role: "other", subRole: "accounter" },
-  { name: "Seller Example", role: "other", subRole: "seller" },
-  { name: "Computer Dept Example", role: "other", subRole: "computer" },
-  { name: "Librarian Example", role: "other", subRole: "library" },
-  { name: "Kuthbkhana Admin Example", role: "other", subRole: "kuthbkhana" },
-  { name: "Spiritual Leader Example", role: "other", subRole: "spiritual" },
-  { name: "MHS Other User 1", role: "other", subRole: "general" },
+  { name: "President", role: "president" },
+  { name: "Secretary", role: "secretary" },
+  { name: "Accounter", role: "other", subRole: "accounter" },
+  { name: "Seller", role: "other", subRole: "seller" },
+  { name: "Computer", role: "other", subRole: "computer" },
+  { name: "Library", role: "other", subRole: "library" },
+  { name: "Kuthbkhana", role: "other", subRole: "kuthbkhana" },
+  { name: "Spiritual", role: "other", subRole: "spiritual" },
+  { name: "Other", role: "other", subRole: "general" },
 ];
 
 export const mhsOtherSubRoles = [
